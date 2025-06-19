@@ -15,6 +15,5 @@ headers = {
 }
 
 response = requests.get(f"{HOST}/public/v1/project", headers=headers)
-print(response.json())
 
 # a little bit slow, may be worth async for larger tasks, e.g., traces
