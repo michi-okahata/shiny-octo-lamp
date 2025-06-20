@@ -14,6 +14,8 @@ headers = {
     "Authorization": f"Bearer {token}",
 }
 
+print(headers)
+
 response = requests.get(f"{HOST}/public/v1/project", headers=headers)
 
-# a little bit slow, may be worth async for larger tasks, e.g., traces
+print(response.json())

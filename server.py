@@ -26,10 +26,13 @@ def auth(api_key: str):
     response = requests.post(f"{HOST}/public/v1/auth/access_token", json=data).json()
     state.set_token(response.get("bearer"))
 
+    return {"Status": "Success"}
+
+
 @mcp.tool
 def get_project(ctx: Context):
     if not state.headers.get("Authorization"):
-        return "Authorization error."
+        return {"Error": "Authorization error."}
     else:
         response = requests.get(f"{HOST}/public/v1/project", headers=state.headers).json()
         return response
