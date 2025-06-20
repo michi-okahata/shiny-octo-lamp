@@ -3,7 +3,7 @@ import requests
 HOST = "http://127.0.0.1:8000"
 
 body = {
-     "api_key": "a640373b-30ae-4655-a1f3-5caa882a8721",
+    "api_key": "a640373b-30ae-4655-a1f3-5caa882a8721",
 }
 
 response = requests.post(f"{HOST}/public/v1/auth/access_token", json=body).json()
