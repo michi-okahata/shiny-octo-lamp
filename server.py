@@ -1,6 +1,5 @@
 import os
 
-from pydantic_core.core_schema import ErrorType
 import requests
 from dotenv import load_dotenv
 
@@ -19,9 +18,6 @@ class State:
 
     def set_token(self, token: str):
         self.headers["Authorization"] = f"Bearer {token}"
-
-    def get_token(self):
-        return self.headers["Authorization"]
 
 
 state = State()
@@ -50,12 +46,16 @@ def auth(api_key: str):
 
 def check_auth(state: State):
     if "Authorization" not in state.headers:
-        raise KeyError("Authorization error.")
+        raise FastMCPError("Authorization error.")
 
 
 @mcp.tool
 def get_project():
-    """Get project information."""
+    """Get project information.
+    
+    Returns:
+        dict: Project information or error message.
+    """
     check_auth(state)
     try:
         response = requests.get(f"{HOST}/public/v1/project", headers=state.headers)
@@ -67,6 +67,14 @@ def get_project():
 
 @mcp.tool
 def get_trace(trace_id: str):
+    """Get trace information by ID.
+    
+    Args:
+        trace_id
+    
+    Returns:
+        dict: Trace information or error message.
+    """
     check_auth(state)
     try:
         response = requests.get(
@@ -80,6 +88,14 @@ def get_trace(trace_id: str):
 
 @mcp.tool
 def get_trace_metrics(trace_id: str):
+    """Get metrics for a specific trace.
+    
+    Args:
+        trace_id
+    
+    Returns:
+        dict: Trace metrics or error message.
+    """
     check_auth(state)
     try:
         response = requests.get(
@@ -93,6 +109,14 @@ def get_trace_metrics(trace_id: str):
 
 @mcp.tool
 def get_span(span_id: str):
+    """Get span information by ID.
+    
+    Args:
+        span_id
+    
+    Returns:
+        dict: Span information or error message.
+    """
     check_auth(state)
     try:
         response = requests.get(
@@ -106,6 +130,14 @@ def get_span(span_id: str):
 
 @mcp.tool
 def get_span_metrics(span_id: str):
+    """Get metrics for a specific span.
+    
+    Args:
+        span_id
+    
+    Returns:
+        dict: Span metrics or error message.
+    """
     check_auth(state)
     try:
         response = requests.get(
@@ -118,4 +150,4 @@ def get_span_metrics(span_id: str):
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    mcp.run()
