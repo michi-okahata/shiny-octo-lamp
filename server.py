@@ -1,10 +1,15 @@
+import os
+
 import requests
+from dotenv import load_dotenv
 
-from fastmcp import FastMCP, Context
+from fastmcp import FastMCP
 
+load_dotenv()
 mcp = FastMCP("AgentOps")
 
-HOST = "http://127.0.0.1:8000"
+HOST = os.getenv("HOST", "http://127.0.0.1:8000")  # change default for public API
+
 
 
 class State:
@@ -13,6 +18,9 @@ class State:
 
     def set_token(self, token: str):
         self.headers["Authorization"] = f"Bearer {token}"
+
+    def get_token(self):
+        return self.headers["Authorization"]
 
 
 state = State()
@@ -33,7 +41,7 @@ def auth(api_key: str):
 
 
 @mcp.tool
-def get_project(ctx: Context):
+def get_project():
     if not state.headers.get("Authorization"):
         return {"Error": "Authorization error."}
     else:
@@ -44,7 +52,7 @@ def get_project(ctx: Context):
 
 
 @mcp.tool
-def get_trace(trace_id: str, ctx: Context):
+def get_trace(trace_id: str):
     response = requests.get(
         f"{HOST}/public/v1/traces/{trace_id}", headers=state.headers
     ).json()
@@ -52,7 +60,7 @@ def get_trace(trace_id: str, ctx: Context):
 
 
 @mcp.tool
-def get_trace_metrics(trace_id: str, ctx: Context):
+def get_trace_metrics(trace_id: str):
     response = requests.get(
         f"{HOST}/public/v1/traces/{trace_id}/metrics", headers=state.headers
     ).json()
@@ -60,7 +68,7 @@ def get_trace_metrics(trace_id: str, ctx: Context):
 
 
 @mcp.tool
-def get_span(span_id: str, ctx: Context):
+def get_span(span_id: str):
     response = requests.get(
         f"{HOST}/public/v1/spans/{span_id}", headers=state.headers
     ).json()
@@ -68,7 +76,7 @@ def get_span(span_id: str, ctx: Context):
 
 
 @mcp.tool
-def get_span_metrics(span_id: str, ctx: Context):
+def get_span_metrics(span_id: str):
     response = requests.get(
         f"{HOST}/public/v1/spans/{span_id}/metrics", headers=state.headers
     ).json()
