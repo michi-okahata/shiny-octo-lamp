@@ -11,6 +11,7 @@ load_dotenv()
 mcp = FastMCP("AgentOps")
 
 HOST = os.getenv("HOST", "https://api.agentops.ai")
+AGENTOPS_API_KEY = os.getenv("AGENTOPS_API_KEY")
 
 
 class State:
@@ -183,4 +184,15 @@ def get_span_metrics(span_id: str):
 
 
 if __name__ == "__main__":
+    # Auto-authenticate if AGENTOPS_API_KEY is set in environment
+    if AGENTOPS_API_KEY:
+        try:
+            data = {"api_key": AGENTOPS_API_KEY}
+            response = requests.post(f"{HOST}/public/v1/auth/access_token", json=data)
+            response.raise_for_status()
+            state.set_token(response.json().get("bearer"))
+            print(f"Successfully authenticated with AgentOps API using environment variable")
+        except Exception as e:
+            print(f"Failed to authenticate with AGENTOPS_API_KEY: {e}")
+    
     mcp.run()
