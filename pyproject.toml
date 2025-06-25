@@ -1,7 +1,7 @@
 [project]
 name = "agentops-mcp"
 version = "0.1.0"
-description = "Add your description here"
+description = "MCP server access to the AgentOps Public API."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

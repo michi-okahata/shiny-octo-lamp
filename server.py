@@ -22,7 +22,7 @@ class State:
 state = State()
 
 
-@mcp.tool
+# @mcp.tool
 def auth(api_key: str):
     """Authorize using a AgentOps project API key and store the resulting JWT token.
     Look for the AgentOps project API key in the primary file or the .env file.
@@ -38,13 +38,12 @@ def auth(api_key: str):
     try:
         response = requests.post(f"{HOST}/public/v1/auth/access_token", json=data)
         response.raise_for_status()
-        state.set_token(response.json().get("bearer"))
+        return {"Authorization": f"Bearer {response.json().get("bearer")}"}
     except Exception as e:
         return {"error": str(e)}
 
-    return {"status": "Success."}
 
-
+# no longer relevant
 def check_auth(state: State):
     if "Authorization" not in state.headers:
         return {
@@ -72,16 +71,14 @@ def clean(response):
 
 
 @mcp.tool
-def get_project():
+def get_project(api_key: str):
     """Get project information.
 
     Returns:
         dict: Project information or error message.
     """
-    if error := check_auth(state):
-        return error
     try:
-        response = requests.get(f"{HOST}/public/v1/project", headers=state.headers)
+        response = requests.get(f"{HOST}/public/v1/project", headers=auth(api_key))
         response.raise_for_status()
         return clean(response.json())
     except Exception as e:
@@ -89,7 +86,7 @@ def get_project():
 
 
 @mcp.tool
-def get_trace(trace_id: str):
+def get_trace(trace_id: str, api_key: str):
     """Get trace information by ID.
 
     Args:
@@ -98,10 +95,8 @@ def get_trace(trace_id: str):
     Returns:
         dict: Trace information or error message.
     """
-    if error := check_auth(state):
-        return error
     try:
-        response = requests.get(f"{HOST}/public/v1/traces/{trace_id}", headers=state.headers)
+        response = requests.get(f"{HOST}/public/v1/traces/{trace_id}", headers=auth(api_key))
         response.raise_for_status()
         return clean(response.json())
     except Exception as e:
@@ -109,7 +104,7 @@ def get_trace(trace_id: str):
 
 
 @mcp.tool
-def get_trace_metrics(trace_id: str):
+def get_trace_metrics(trace_id: str, api_key: str):
     """Get metrics for a specific trace.
 
     Args:
@@ -118,10 +113,8 @@ def get_trace_metrics(trace_id: str):
     Returns:
         dict: Trace metrics or error message.
     """
-    if error := check_auth(state):
-        return error
     try:
-        response = requests.get(f"{HOST}/public/v1/traces/{trace_id}/metrics", headers=state.headers)
+        response = requests.get(f"{HOST}/public/v1/traces/{trace_id}/metrics", headers=auth(api_key))
         response.raise_for_status()
         return clean(response.json())
     except Exception as e:
@@ -129,7 +122,7 @@ def get_trace_metrics(trace_id: str):
 
 
 @mcp.tool
-def get_span(span_id: str):
+def get_span(span_id: str, api_key: str):
     """Get span information by ID.
 
     Args:
@@ -138,10 +131,8 @@ def get_span(span_id: str):
     Returns:
         dict: Span information or error message.
     """
-    if error := check_auth(state):
-        return error
     try:
-        response = requests.get(f"{HOST}/public/v1/spans/{span_id}", headers=state.headers)
+        response = requests.get(f"{HOST}/public/v1/spans/{span_id}", headers=auth(api_key))
         response.raise_for_status()
         return clean(response.json())
     except Exception as e:
@@ -149,7 +140,7 @@ def get_span(span_id: str):
 
 
 @mcp.tool
-def get_span_metrics(span_id: str):
+def get_span_metrics(span_id: str, api_key: str):
     """Get metrics for a specific span.
 
     Args:
@@ -158,10 +149,8 @@ def get_span_metrics(span_id: str):
     Returns:
         dict: Span metrics or error message.
     """
-    if error := check_auth(state):
-        return error
     try:
-        response = requests.get(f"{HOST}/public/v1/spans/{span_id}/metrics", headers=state.headers)
+        response = requests.get(f"{HOST}/public/v1/spans/{span_id}/metrics", headers=auth(api_key))
         response.raise_for_status()
         return clean(response.json())
     except Exception as e:
