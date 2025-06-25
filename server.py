@@ -28,10 +28,10 @@ def auth(api_key: str):
     Look for the AgentOps project API key in the primary file or the .env file.
 
     Args:
-        api_key: AgentOps project API key.
+        api_key
 
     Returns:
-        dict: Error message or success.
+        dict: Authorization bearer token.
     """
     data = {"api_key": api_key}
 
@@ -41,20 +41,6 @@ def auth(api_key: str):
         return {"Authorization": f"Bearer {response.json().get("bearer")}"}
     except Exception as e:
         return {"error": str(e)}
-
-
-# no longer relevant
-def check_auth(state: State):
-    if "Authorization" not in state.headers:
-        return {
-            "status": "Requires authorization.",
-            "next_action": {
-                "tool": "auth",
-                "prompt": "Authorize the server. Look for the User's AgentOps project API key the entry or .env file.",
-            },
-        }
-    else:
-        return None
 
 
 def clean(response):
@@ -74,6 +60,9 @@ def clean(response):
 def get_project(api_key: str):
     """Get project information.
 
+    Args:
+        api_key
+
     Returns:
         dict: Project information or error message.
     """
@@ -91,6 +80,7 @@ def get_trace(trace_id: str, api_key: str):
 
     Args:
         trace_id
+        api_key
 
     Returns:
         dict: Trace information or error message.
@@ -109,6 +99,7 @@ def get_trace_metrics(trace_id: str, api_key: str):
 
     Args:
         trace_id
+        api_key
 
     Returns:
         dict: Trace metrics or error message.
@@ -127,6 +118,7 @@ def get_span(span_id: str, api_key: str):
 
     Args:
         span_id
+        api_key
 
     Returns:
         dict: Span information or error message.
@@ -145,6 +137,7 @@ def get_span_metrics(span_id: str, api_key: str):
 
     Args:
         span_id
+        api_key
 
     Returns:
         dict: Span metrics or error message.
