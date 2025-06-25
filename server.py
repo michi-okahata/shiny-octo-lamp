@@ -22,7 +22,6 @@ class State:
 state = State()
 
 
-# @mcp.tool
 def auth(api_key: str):
     """Authorize using a AgentOps project API key and store the resulting JWT token.
     Look for the AgentOps project API key in the primary file or the .env file.
