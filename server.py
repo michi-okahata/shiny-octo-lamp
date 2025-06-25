@@ -1,17 +1,14 @@
 import os
 
-from pydantic.types import PastDate
 import requests
 from dotenv import load_dotenv
 
 from fastmcp import FastMCP
-from fastmcp.exceptions import FastMCPError
 
 load_dotenv()
 mcp = FastMCP("AgentOps")
 
 HOST = os.getenv("HOST", "https://api.agentops.ai")
-AGENTOPS_API_KEY = os.getenv("AGENTOPS_API_KEY")
 
 
 class State:
@@ -54,8 +51,8 @@ def check_auth(state: State):
             "status": "Requires authorization.",
             "next_action": {
                 "tool": "auth",
-                "prompt": "Authorize the server. Look for the User's AgentOps project API key the entry or .env file."
-            }
+                "prompt": "Authorize the server. Look for the User's AgentOps project API key the entry or .env file.",
+            },
         }
     else:
         return None
@@ -69,11 +66,7 @@ def clean(response):
             if value not in ("", [], {})
         }
     elif isinstance(response, list):
-        return [
-            value
-            for value in (clean(item) for item in response)
-            if value not in ("", [], {})
-        ]
+        return [value for value in (clean(item) for item in response) if value not in ("", [], {})]
     else:
         return response
 
@@ -108,9 +101,7 @@ def get_trace(trace_id: str):
     if error := check_auth(state):
         return error
     try:
-        response = requests.get(
-            f"{HOST}/public/v1/traces/{trace_id}", headers=state.headers
-        )
+        response = requests.get(f"{HOST}/public/v1/traces/{trace_id}", headers=state.headers)
         response.raise_for_status()
         return clean(response.json())
     except Exception as e:
@@ -130,9 +121,7 @@ def get_trace_metrics(trace_id: str):
     if error := check_auth(state):
         return error
     try:
-        response = requests.get(
-            f"{HOST}/public/v1/traces/{trace_id}/metrics", headers=state.headers
-        )
+        response = requests.get(f"{HOST}/public/v1/traces/{trace_id}/metrics", headers=state.headers)
         response.raise_for_status()
         return clean(response.json())
     except Exception as e:
@@ -152,9 +141,7 @@ def get_span(span_id: str):
     if error := check_auth(state):
         return error
     try:
-        response = requests.get(
-            f"{HOST}/public/v1/spans/{span_id}", headers=state.headers
-        )
+        response = requests.get(f"{HOST}/public/v1/spans/{span_id}", headers=state.headers)
         response.raise_for_status()
         return clean(response.json())
     except Exception as e:
@@ -174,9 +161,7 @@ def get_span_metrics(span_id: str):
     if error := check_auth(state):
         return error
     try:
-        response = requests.get(
-            f"{HOST}/public/v1/spans/{span_id}/metrics", headers=state.headers
-        )
+        response = requests.get(f"{HOST}/public/v1/spans/{span_id}/metrics", headers=state.headers)
         response.raise_for_status()
         return clean(response.json())
     except Exception as e:
@@ -184,15 +169,4 @@ def get_span_metrics(span_id: str):
 
 
 if __name__ == "__main__":
-    # Auto-authenticate if AGENTOPS_API_KEY is set in environment
-    if AGENTOPS_API_KEY:
-        try:
-            data = {"api_key": AGENTOPS_API_KEY}
-            response = requests.post(f"{HOST}/public/v1/auth/access_token", json=data)
-            response.raise_for_status()
-            state.set_token(response.json().get("bearer"))
-            print(f"Successfully authenticated with AgentOps API using environment variable")
-        except Exception as e:
-            print(f"Failed to authenticate with AGENTOPS_API_KEY: {e}")
-    
     mcp.run()
