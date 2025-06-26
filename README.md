@@ -4,40 +4,11 @@
 
 The AgentOps MCP server provides access to observability and tracing data for debugging complex AI agent runs. This adds crucial context about where the AI agent succeeds or fails.
 
-## Installation
-
-### Installing via Smithery
-
-To install agentops-mcp for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@AgentOps-AI/agentops-mcp):
-
-```bash
-npx -y @smithery/cli install @AgentOps-AI/agentops-mcp --client claude
-```
-
-### Local Development
-
-```bash
-# Clone and setup
-git clone https://github.com/AgentOps-AI/agentops-mcp.git
-cd mcp
-npm install
-
-# Build the project
-npm run build
-
-# Run the server
-npm pack
-```
-
 ## Usage
-
-### Configuration
-
-The server connects to the AgentOps API at `https://api.agentops.ai`.
 
 ### MCP Client Configuration
 
-Add to your MCP configuration file:
+Add the following to your MCP configuration file:
 
 ```json
 {
@@ -51,6 +22,33 @@ Add to your MCP configuration file:
         }
     }
 }
+```
+
+## Installation
+
+### Installing via Smithery
+
+To install agentops-mcp for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@AgentOps-AI/agentops-mcp):
+
+```bash
+npx -y @smithery/cli install @AgentOps-AI/agentops-mcp --client claude
+```
+
+### Local Development
+
+To build the MCP server locally:
+
+```bash
+# Clone and setup
+git clone https://github.com/AgentOps-AI/agentops-mcp.git
+cd mcp
+npm install
+
+# Build the project
+npm run build
+
+# Run the server
+npm pack
 ```
 
 ## Available Tools
