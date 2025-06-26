@@ -167,7 +167,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "auth",
         description:
-          "Authorize using a AgentOps project API key and store the resulting JWT token.\n    Note: If AGENTOPS_API_KEY environment variable is set, authentication happens automatically on startup.\n\n    Args:\n        api_key: AgentOps project API key (optional if AGENTOPS_API_KEY env var is set).\n\n    Returns:\n        dict: Error message or success.\n    ",
+          "Authorize using the AGENTOPS_API_KEY. If an API key is not provided, search for it in the directory and the .env file.",
         inputSchema: {
           type: "object",
           properties: {
@@ -182,8 +182,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "get_project",
-        description:
-          "Get project information.\n\n    Returns:\n        dict: Project information or error message.\n    ",
+        description: "Get information about the current AgentOps project.",
         inputSchema: {
           type: "object",
           properties: {},
@@ -191,8 +190,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "get_trace",
-        description:
-          "Get trace information by ID.\n\n    Args:\n        trace_id\n\n    Returns:\n        dict: Trace information or error message.\n    ",
+        description: "Get basic trace information by trace_id.",
         inputSchema: {
           type: "object",
           properties: {
@@ -206,8 +204,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "get_span",
-        description:
-          "Get span information by ID.\n\n    Args:\n        span_id\n\n    Returns:\n        dict: Span information or error message.\n    ",
+        description: "Get span information by span_id.",
         inputSchema: {
           type: "object",
           properties: {
@@ -221,8 +218,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "get_trace_metrics",
-        description:
-          "Get metrics for a specific trace.\n\n    Args:\n        trace_id\n\n    Returns:\n        dict: Trace metrics or error message.\n    ",
+        description: "Get metrics for a specific trace by trace_id.",
         inputSchema: {
           type: "object",
           properties: {
@@ -236,8 +232,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "get_span_metrics",
-        description:
-          "Get metrics for a specific span.\n\n    Args:\n        span_id\n\n    Returns:\n        dict: Span metrics or error message.\n    ",
+        description: "Get performance metrics for a specific span by span_id.",
         inputSchema: {
           type: "object",
           properties: {
