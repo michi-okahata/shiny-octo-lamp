@@ -108,7 +108,7 @@ async function makeAuthenticatedRequest(
 
 const server = new Server({
   name: "agentops-mcp",
-  version: "0.1.0",
+  version: "0.2.0",
 });
 
 // List available tools
@@ -116,24 +116,9 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
       {
-        name: "auth",
-        description:
-          "Authorize using a AgentOps project API key and return JWT token.\n\n    Args:\n        api_key: AgentOps project API key.\n\n    Returns:\n        dict: Authorization headers or error message.\n    ",
-        inputSchema: {
-          type: "object",
-          properties: {
-            api_key: {
-              type: "string",
-              description: "AgentOps project API key",
-            },
-          },
-          required: ["api_key"],
-        },
-      },
-      {
         name: "get_project",
         description:
-          "Get project information.\n\n    Returns:\n        dict: Project information or error message.\n    ",
+          "Retrieve comprehensive information about your AgentOps project, including configuration details, recent activity, and project metadata.",
         inputSchema: {
           type: "object",
           properties: {
@@ -148,7 +133,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "get_trace",
         description:
-          "Get trace information by ID.\n\n    Args:\n        trace_id\n\n    Returns:\n        dict: Trace information or error message.\n    ",
+          "Fetch detailed information about a specific trace execution by its unique identifier. This includes all spans, execution flow, and basic metadata for the trace.",
         inputSchema: {
           type: "object",
           properties: {
@@ -167,7 +152,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "get_span",
         description:
-          "Get span information by ID.\n\n    Args:\n        span_id\n\n    Returns:\n        dict: Span information or error message.\n    ",
+          "Retrieve detailed information about a specific span within a trace. Spans represent individual operations or steps in your agent's execution flow.",
         inputSchema: {
           type: "object",
           properties: {
@@ -186,7 +171,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "get_trace_metrics",
         description:
-          "Get metrics for a specific trace.\n\n    Args:\n        trace_id\n\n    Returns:\n        dict: Trace metrics or error message.\n    ",
+          "Analyze performance metrics for a specific trace, including execution time, token usage, costs, and other quantitative measurements of the trace's performance.",
         inputSchema: {
           type: "object",
           properties: {
@@ -205,7 +190,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "get_span_metrics",
         description:
-          "Get metrics for a specific span.\n\n    Args:\n        span_id\n\n    Returns:\n        dict: Span metrics or error message.\n    ",
+          "Access detailed performance metrics for an individual span, including timing data, resource consumption, and efficiency measurements for that specific operation.",
         inputSchema: {
           type: "object",
           properties: {
@@ -224,7 +209,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "get_complete_trace",
         description:
-          "Get COMPLETE trace information and metrics.\n\n    Args:\n        trace_id\n        api_key\n\n    Returns:\n        dict: Complete trace information and metrics or error message.\n    ",
+          "Retrieve comprehensive trace data including the main trace information, all associated spans with their detailed information, and complete performance metrics for both the trace and all its spans. This provides the most thorough view of a trace execution.",
         inputSchema: {
           type: "object",
           properties: {
@@ -250,19 +235,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   try {
     switch (name) {
-      case "auth": {
-        const { api_key } = args as { api_key: string };
-        const result = await auth(api_key);
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-      }
-
       case "get_project": {
         const { api_key } = args as { api_key: string };
         const result = await makeAuthenticatedRequest(
