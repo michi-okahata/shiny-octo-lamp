@@ -1,56 +1,174 @@
-## AgentOps MCP
+# AgentOps MCP Server (TypeScript)
 
-1. Run the public API at AgentOps.Next/api.
-2. Configure your MCP client.
-3. Chat/debug/etc!
+A Model Context Protocol (MCP) server that provides access to the AgentOps Public API for observing and debugging AI agent runs.
 
-## Environment Variables
+## Features
 
-- `AGENTOPS_API_KEY`: Your AgentOps API key (required for authentication)
+- **Authentication**: Authorize using AgentOps project API keys
+- **Project Information**: Get project details and configuration
+- **Trace Management**: Retrieve trace information and metrics
+- **Span Analysis**: Access span data and performance metrics
+- **Complete Trace Data**: Get comprehensive trace information with all spans and metrics
+
+## Installation
+
+### Using npx (Recommended)
+
+```bash
+npx agentops-mcp
+```
+
+### Local Development
+
+```bash
+# Clone and setup
+git clone <repository-url>
+cd mcp
+npm install
+
+# Build the project
+npm run build
+
+# Run the server
+npm start
+
+# Or run in development mode
+npm run dev
+```
+
+## Usage
+
+### Environment Variables
+
+- `AGENTOPS_API_KEY`: Your AgentOps API key (optional, can be passed as parameter)
 - `HOST`: The AgentOps API host (optional, defaults to https://api.agentops.ai)
 
-When `AGENTOPS_API_KEY` is set in the environment, the server will automatically authenticate on startup.
+### MCP Client Configuration
 
-## Configuration Examples
+#### Claude Desktop / Windsurf
 
-### Windsurf config example (with direct Python):
+Add to your MCP configuration file:
 
 ```json
 {
     "mcpServers": {
         "agentops": {
-            "command": "uv",
-            "args": [
-                "--directory", "/path/to/agentops-mcp",
-                "run", "server.py"
-            ],
+            "command": "npx",
+            "args": ["agentops-mcp"],
             "env": {
-                "AGENTOPS_API_KEY": "your-agentops-api-key-here"
+                "AGENTOPS_API_KEY": "your-api-key-here"
             }
         }
     }
 }
 ```
 
-### Docker configuration example:
+#### Local Development Configuration
 
 ```json
 {
     "mcpServers": {
         "agentops": {
-            "command": "docker",
-            "args": [
-                "run",
-                "-i",
-                "--rm",
-                "-e",
-                "AGENTOPS_API_KEY",
-                "agentops/agentops-mcp:latest"
-            ],
+            "command": "node",
+            "args": ["/path/to/mcp/dist/server.js"],
             "env": {
-                "AGENTOPS_API_KEY": "your-agentops-api-key-here"
+                "AGENTOPS_API_KEY": "your-api-key-here"
             }
         }
     }
 }
 ```
+
+## Available Tools
+
+### `auth`
+Authorize using an AgentOps project API key.
+
+**Parameters:**
+- `api_key` (string): Your AgentOps project API key
+
+### `get_project`
+Get project information and configuration.
+
+**Parameters:**
+- `api_key` (string): Your AgentOps project API key
+
+### `get_trace`
+Retrieve trace information by ID.
+
+**Parameters:**
+- `trace_id` (string): The trace ID to retrieve
+- `api_key` (string): Your AgentOps project API key
+
+### `get_span`
+Get span information by ID.
+
+**Parameters:**
+- `span_id` (string): The span ID to retrieve
+- `api_key` (string): Your AgentOps project API key
+
+### `get_trace_metrics`
+Get performance metrics for a specific trace.
+
+**Parameters:**
+- `trace_id` (string): The trace ID
+- `api_key` (string): Your AgentOps project API key
+
+### `get_span_metrics`
+Get performance metrics for a specific span.
+
+**Parameters:**
+- `span_id` (string): The span ID
+- `api_key` (string): Your AgentOps project API key
+
+### `get_complete_trace`
+Get comprehensive trace information including all spans and their metrics.
+
+**Parameters:**
+- `trace_id` (string): The trace ID
+- `api_key` (string): Your AgentOps project API key
+
+## Development
+
+### Building
+
+```bash
+npm run build
+```
+
+### Running in Development Mode
+
+```bash
+npm run dev
+```
+
+### Project Structure
+
+```
+mcp/
+├── src/
+│   └── server.ts          # Main MCP server implementation
+├── dist/                  # Compiled JavaScript output
+├── package.json          # NPM configuration
+├── tsconfig.json         # TypeScript configuration
+└── README.ts.md          # This file
+```
+
+## Error Handling
+
+All tools return JSON responses. On error, you'll receive:
+
+```json
+{
+  "error": "Error message describing what went wrong"
+}
+```
+
+## Requirements
+
+- Node.js >= 18.0.0
+- AgentOps API key
+
+## License
+
+MIT

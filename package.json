@@ -1,0 +1,42 @@
+{
+  "name": "agentops-mcp",
+  "version": "0.1.0",
+  "description": "MCP server access to the AgentOps Public API.",
+  "main": "dist/server.js",
+  "bin": {
+    "agentops-mcp": "bin/agentops-mcp"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "tsx src/server.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "agentops",
+    "observability",
+    "ai",
+    "monitoring"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.4.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist/**/*",
+    "bin/**/*",
+    "README.md"
+  ]
+}

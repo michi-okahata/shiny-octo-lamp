@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+
+const path = require('path');
+const { spawn } = require('child_process');
+
+// Get the directory where this script is located
+const binDir = __dirname;
+const projectRoot = path.dirname(binDir);
+const serverPath = path.join(projectRoot, 'dist', 'server.js');
+
+// Check if the server file exists
+const fs = require('fs');
+if (!fs.existsSync(serverPath)) {
+  console.error('Error: Server file not found at', serverPath);
+  console.error('Please run "npm run build" first to compile the TypeScript source.');
+  process.exit(1);
+}
+
+// Spawn the server process
+const server = spawn('node', [serverPath], {
+  stdio: 'inherit',
+  env: process.env
+});
+
+// Handle process termination
+process.on('SIGINT', () => {
+  server.kill('SIGINT');
+});
+
+process.on('SIGTERM', () => {
+  server.kill('SIGTERM');
+});
+
+// Exit with the same code as the server
+server.on('exit', (code) => {
+  process.exit(code);
+});
+
+server.on('error', (error) => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
+});
