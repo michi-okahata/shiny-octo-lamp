@@ -1,5 +1,7 @@
 # AgentOps MCP Server (TypeScript)
 
+[![smithery badge](https://smithery.ai/badge/@AgentOps-AI/agentops-mcp)](https://smithery.ai/server/@AgentOps-AI/agentops-mcp)
+
 A Model Context Protocol (MCP) server that provides access to the AgentOps Public API for observing and debugging AI agent runs.
 
 ## Features
@@ -11,6 +13,14 @@ A Model Context Protocol (MCP) server that provides access to the AgentOps Publi
 - **Complete Trace Data**: Get comprehensive trace information with all spans and metrics
 
 ## Installation
+
+### Installing via Smithery
+
+To install agentops-mcp for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@AgentOps-AI/agentops-mcp):
+
+```bash
+npx -y @smithery/cli install @AgentOps-AI/agentops-mcp --client claude
+```
 
 ### Using npx (Recommended)
 
