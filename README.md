@@ -1,4 +1,4 @@
-# AgentOps MCP Server (TypeScript)
+# AgentOps MCP Server
 
 [![smithery badge](https://smithery.ai/badge/@AgentOps-AI/agentops-mcp)](https://smithery.ai/server/@AgentOps-AI/agentops-mcp)
 
