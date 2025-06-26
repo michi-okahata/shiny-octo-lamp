@@ -14,7 +14,7 @@
     },
     "agentops-local-tarball": {
       "command": "/Users/michi/.nvm/versions/node/v23.6.0/bin/npx",
-      "args": ["./agentops-mcp-0.2.0.tgz"],
+      "args": ["./agentops-mcp-0.3.0.tgz"],
       "cwd": "/Users/michi/AgentOps/mcp"
     },
     "agentops-global-install": {

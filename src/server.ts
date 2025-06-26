@@ -133,7 +133,7 @@ async function makeAuthenticatedRequest(endpoint: string): Promise<any> {
 
 const server = new Server({
   name: "agentops-mcp",
-  version: "0.2.0",
+  version: "0.3.0",
 });
 
 // List available tools
@@ -143,16 +143,17 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "auth",
         description:
-          "Authorize using a AgentOps project API key and store the resulting JWT token.\n    Look for the AgentOps project API key in the primary file or the .env file.\n\n    Args:\n        api_key: AgentOps project API key.\n\n    Returns:\n        dict: Error message or success.\n    ",
+          "Authorize using a AgentOps project API key and store the resulting JWT token.\n    Look for the AgentOps project API key in the primary file or the .env file.\n\n    Args:\n        api_key: AgentOps project API key (optional if AGENTOPS_API_KEY env var is set).\n\n    Returns:\n        dict: Error message or success.\n    ",
         inputSchema: {
           type: "object",
           properties: {
             api_key: {
               type: "string",
-              description: "AgentOps project API key",
+              description:
+                "AgentOps project API key (optional if AGENTOPS_API_KEY environment variable is set)",
             },
           },
-          required: ["api_key"],
+          required: [],
         },
       },
       {
@@ -235,13 +236,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     switch (name) {
       case "auth": {
-        const { api_key } = args as { api_key: string };
+        const { api_key } = args as { api_key?: string };
 
-        // Try to get API key from environment if not provided
-        const actualApiKey = api_key || process.env["AGENTOPS_API_KEY"];
+        // Try to get API key from environment first, then from parameter
+        const actualApiKey = process.env["AGENTOPS_API_KEY"] || api_key;
         if (!actualApiKey) {
           throw new Error(
-            "No API key provided and AGENTOPS_API_KEY environment variable not set",
+            "No API key available. Please either set the AGENTOPS_API_KEY environment variable or provide an api_key parameter.",
           );
         }
 
@@ -253,12 +254,19 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         // Store the JWT token in server state
         serverState.setJwtToken(authResult);
 
+        const source = process.env["AGENTOPS_API_KEY"]
+          ? "environment variable"
+          : "provided parameter";
         return {
           content: [
             {
               type: "text",
               text: JSON.stringify(
-                { success: true, message: "Authentication successful" },
+                {
+                  success: true,
+                  message: "Authentication successful",
+                  source: `API key loaded from ${source}`,
+                },
                 null,
                 2,
               ),
@@ -358,7 +366,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
+
+  // Debug: Log environment variable status
+  const hasApiKey = !!process.env["AGENTOPS_API_KEY"];
   console.error("AgentOps MCP server running on stdio");
+  console.error(
+    `AGENTOPS_API_KEY environment variable: ${hasApiKey ? "SET" : "NOT SET"}`,
+  );
+  if (hasApiKey) {
+    const keyPreview = process.env["AGENTOPS_API_KEY"]!.substring(0, 8) + "...";
+    console.error(`API Key preview: ${keyPreview}`);
+  }
 }
 
 // Handle process signals gracefully
