@@ -51,22 +51,12 @@ Add to your MCP configuration file:
 ```json
 {
     "mcpServers": {
-        "agentops": {
+        "agentops-mcp": {
             "command": "npx",
-            "args": ["agentops-mcp"]
-        }
-    }
-}
-```
-
-#### Local Development Configuration
-
-```json
-{
-    "mcpServers": {
-        "agentops": {
-            "command": "node",
-            "args": ["/path/to/mcp/dist/server.js"]
+            "args": ["agentops-mcp"],
+            "env": {
+              "AGENTOPS_API_KEY": "API_KEY_OPTIONAL"
+            }
         }
     }
 }
@@ -136,18 +126,6 @@ npm run build
 
 ```bash
 npm run dev
-```
-
-### Project Structure
-
-```
-mcp/
-├── src/
-│   └── server.ts          # Main MCP server implementation
-├── dist/                  # Compiled JavaScript output
-├── package.json          # NPM configuration
-├── tsconfig.json         # TypeScript configuration
-└── README.md             # This file
 ```
 
 ## Error Handling

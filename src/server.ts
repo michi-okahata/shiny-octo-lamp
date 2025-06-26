@@ -53,6 +53,30 @@ class ServerState {
 const serverState = new ServerState();
 
 /**
+ * Initialize authentication on server startup if API key is available
+ */
+async function initializeAuth(): Promise<void> {
+  const apiKey = process.env["AGENTOPS_API_KEY"];
+  if (apiKey) {
+    try {
+      const authResult = await authWithApiKey(apiKey);
+      if (typeof authResult === "string") {
+        serverState.setJwtToken(authResult);
+        console.error(
+          "Auto-authentication successful using environment variable",
+        );
+      } else {
+        console.error(`Auto-authentication failed: ${authResult.error}`);
+      }
+    } catch (error) {
+      console.error(
+        `Auto-authentication error: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+}
+
+/**
  * Authorize using an AgentOps project API key and return JWT token
  */
 async function authWithApiKey(apiKey: string): Promise<string | ErrorResponse> {
@@ -143,7 +167,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "auth",
         description:
-          "Authorize using a AgentOps project API key and store the resulting JWT token.\n    Look for the AgentOps project API key in the primary file or the .env file.\n\n    Args:\n        api_key: AgentOps project API key (optional if AGENTOPS_API_KEY env var is set).\n\n    Returns:\n        dict: Error message or success.\n    ",
+          "Authorize using a AgentOps project API key and store the resulting JWT token.\n    Note: If AGENTOPS_API_KEY environment variable is set, authentication happens automatically on startup.\n\n    Args:\n        api_key: AgentOps project API key (optional if AGENTOPS_API_KEY env var is set).\n\n    Returns:\n        dict: Error message or success.\n    ",
         inputSchema: {
           type: "object",
           properties: {
@@ -237,6 +261,27 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     switch (name) {
       case "auth": {
         const { api_key } = args as { api_key?: string };
+
+        // Check if already authenticated
+        if (serverState.isAuthenticated() && !api_key) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: JSON.stringify(
+                  {
+                    success: true,
+                    message: "Already authenticated",
+                    source:
+                      "Previously authenticated (likely from environment variable on startup)",
+                  },
+                  null,
+                  2,
+                ),
+              },
+            ],
+          };
+        }
 
         // Try to get API key from environment first, then from parameter
         const actualApiKey = process.env["AGENTOPS_API_KEY"] || api_key;
@@ -365,14 +410,24 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
 async function main() {
   const transport = new StdioServerTransport();
+
+  // Initialize authentication before connecting
+  await initializeAuth();
+
   await server.connect(transport);
 
-  // Debug: Log environment variable status
+  // Debug: Log environment variable and authentication status
   const hasApiKey = !!process.env["AGENTOPS_API_KEY"];
+  const isAuthenticated = serverState.isAuthenticated();
+
   console.error("AgentOps MCP server running on stdio");
   console.error(
     `AGENTOPS_API_KEY environment variable: ${hasApiKey ? "SET" : "NOT SET"}`,
   );
+  console.error(
+    `Authentication status: ${isAuthenticated ? "AUTHENTICATED" : "NOT AUTHENTICATED"}`,
+  );
+
   if (hasApiKey) {
     const keyPreview = process.env["AGENTOPS_API_KEY"]!.substring(0, 8) + "...";
     console.error(`API Key preview: ${keyPreview}`);

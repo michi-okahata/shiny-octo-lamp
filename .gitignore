@@ -71,6 +71,7 @@ Thumbs.db
 
 # Build artifacts
 build/
+dist/
 tmp/
 
 # Package files
