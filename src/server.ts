@@ -26,10 +26,36 @@ interface ErrorResponse {
   error: string;
 }
 
+// Server state to hold JWT token
+class ServerState {
+  private jwtToken: string | null = null;
+
+  setJwtToken(token: string): void {
+    this.jwtToken = token;
+  }
+
+  getAuthHeaders(): AuthHeaders | null {
+    if (!this.jwtToken) {
+      return null;
+    }
+    return { Authorization: `Bearer ${this.jwtToken}` };
+  }
+
+  isAuthenticated(): boolean {
+    return this.jwtToken !== null;
+  }
+
+  clearAuth(): void {
+    this.jwtToken = null;
+  }
+}
+
+const serverState = new ServerState();
+
 /**
- * Authorize using an AgentOps project API key and return JWT token headers
+ * Authorize using an AgentOps project API key and return JWT token
  */
-async function auth(apiKey: string): Promise<AuthHeaders | ErrorResponse> {
+async function authWithApiKey(apiKey: string): Promise<string | ErrorResponse> {
   const data = { api_key: apiKey };
 
   try {
@@ -41,7 +67,7 @@ async function auth(apiKey: string): Promise<AuthHeaders | ErrorResponse> {
     if (!bearer) {
       throw new Error("No bearer token received from auth endpoint");
     }
-    return { Authorization: `Bearer ${bearer}` };
+    return bearer;
   } catch (error) {
     return { error: error instanceof Error ? error.message : String(error) };
   }
@@ -85,20 +111,19 @@ function clean(response: any): any {
 }
 
 /**
- * Make authenticated request to AgentOps API
+ * Make authenticated request to AgentOps API using stored JWT token
  */
-async function makeAuthenticatedRequest(
-  endpoint: string,
-  apiKey: string,
-): Promise<any> {
-  const authResult = await auth(apiKey);
-  if ("error" in authResult) {
-    throw new Error(`Authentication failed: ${authResult.error}`);
+async function makeAuthenticatedRequest(endpoint: string): Promise<any> {
+  const authHeaders = serverState.getAuthHeaders();
+  if (!authHeaders) {
+    throw new Error(
+      "Not authenticated. Please use the 'auth' tool first with your AgentOps API key.",
+    );
   }
 
   try {
     const response = await axios.get(`${HOST}${endpoint}`, {
-      headers: authResult,
+      headers: authHeaders,
     });
     return clean(response.data);
   } catch (error) {
@@ -116,9 +141,9 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
       {
-        name: "get_project",
+        name: "auth",
         description:
-          "Retrieve comprehensive information about your AgentOps project, including configuration details, recent activity, and project metadata.",
+          "Authorize using a AgentOps project API key and store the resulting JWT token.\n    Look for the AgentOps project API key in the primary file or the .env file.\n\n    Args:\n        api_key: AgentOps project API key.\n\n    Returns:\n        dict: Error message or success.\n    ",
         inputSchema: {
           type: "object",
           properties: {
@@ -131,9 +156,18 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
+        name: "get_project",
+        description:
+          "Get project information.\n\n    Returns:\n        dict: Project information or error message.\n    ",
+        inputSchema: {
+          type: "object",
+          properties: {},
+        },
+      },
+      {
         name: "get_trace",
         description:
-          "Fetch detailed information about a specific trace execution by its unique identifier. This includes all spans, execution flow, and basic metadata for the trace.",
+          "Get trace information by ID.\n\n    Args:\n        trace_id\n\n    Returns:\n        dict: Trace information or error message.\n    ",
         inputSchema: {
           type: "object",
           properties: {
@@ -141,18 +175,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               type: "string",
               description: "Trace ID",
             },
-            api_key: {
-              type: "string",
-              description: "AgentOps project API key",
-            },
           },
-          required: ["trace_id", "api_key"],
+          required: ["trace_id"],
         },
       },
       {
         name: "get_span",
         description:
-          "Retrieve detailed information about a specific span within a trace. Spans represent individual operations or steps in your agent's execution flow.",
+          "Get span information by ID.\n\n    Args:\n        span_id\n\n    Returns:\n        dict: Span information or error message.\n    ",
         inputSchema: {
           type: "object",
           properties: {
@@ -160,18 +190,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               type: "string",
               description: "Span ID",
             },
-            api_key: {
-              type: "string",
-              description: "AgentOps project API key",
-            },
           },
-          required: ["span_id", "api_key"],
+          required: ["span_id"],
         },
       },
       {
         name: "get_trace_metrics",
         description:
-          "Analyze performance metrics for a specific trace, including execution time, token usage, costs, and other quantitative measurements of the trace's performance.",
+          "Get metrics for a specific trace.\n\n    Args:\n        trace_id\n\n    Returns:\n        dict: Trace metrics or error message.\n    ",
         inputSchema: {
           type: "object",
           properties: {
@@ -179,18 +205,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               type: "string",
               description: "Trace ID",
             },
-            api_key: {
-              type: "string",
-              description: "AgentOps project API key",
-            },
           },
-          required: ["trace_id", "api_key"],
+          required: ["trace_id"],
         },
       },
       {
         name: "get_span_metrics",
         description:
-          "Access detailed performance metrics for an individual span, including timing data, resource consumption, and efficiency measurements for that specific operation.",
+          "Get metrics for a specific span.\n\n    Args:\n        span_id\n\n    Returns:\n        dict: Span metrics or error message.\n    ",
         inputSchema: {
           type: "object",
           properties: {
@@ -198,31 +220,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               type: "string",
               description: "Span ID",
             },
-            api_key: {
-              type: "string",
-              description: "AgentOps project API key",
-            },
           },
-          required: ["span_id", "api_key"],
-        },
-      },
-      {
-        name: "get_complete_trace",
-        description:
-          "Retrieve comprehensive trace data including the main trace information, all associated spans with their detailed information, and complete performance metrics for both the trace and all its spans. This provides the most thorough view of a trace execution.",
-        inputSchema: {
-          type: "object",
-          properties: {
-            trace_id: {
-              type: "string",
-              description: "Trace ID",
-            },
-            api_key: {
-              type: "string",
-              description: "AgentOps project API key",
-            },
-          },
-          required: ["trace_id", "api_key"],
+          required: ["span_id"],
         },
       },
     ],
@@ -235,12 +234,41 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   try {
     switch (name) {
-      case "get_project": {
+      case "auth": {
         const { api_key } = args as { api_key: string };
-        const result = await makeAuthenticatedRequest(
-          "/public/v1/project",
-          api_key,
-        );
+
+        // Try to get API key from environment if not provided
+        const actualApiKey = api_key || process.env["AGENTOPS_API_KEY"];
+        if (!actualApiKey) {
+          throw new Error(
+            "No API key provided and AGENTOPS_API_KEY environment variable not set",
+          );
+        }
+
+        const authResult = await authWithApiKey(actualApiKey);
+        if (typeof authResult === "object" && "error" in authResult) {
+          throw new Error(`Authentication failed: ${authResult.error}`);
+        }
+
+        // Store the JWT token in server state
+        serverState.setJwtToken(authResult);
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(
+                { success: true, message: "Authentication successful" },
+                null,
+                2,
+              ),
+            },
+          ],
+        };
+      }
+
+      case "get_project": {
+        const result = await makeAuthenticatedRequest("/public/v1/project");
         return {
           content: [
             {
@@ -252,13 +280,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case "get_trace": {
-        const { trace_id, api_key } = args as {
-          trace_id: string;
-          api_key: string;
-        };
+        const { trace_id } = args as { trace_id: string };
         const result = await makeAuthenticatedRequest(
           `/public/v1/traces/${trace_id}`,
-          api_key,
         );
         return {
           content: [
@@ -271,13 +295,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case "get_span": {
-        const { span_id, api_key } = args as {
-          span_id: string;
-          api_key: string;
-        };
+        const { span_id } = args as { span_id: string };
         const result = await makeAuthenticatedRequest(
           `/public/v1/spans/${span_id}`,
-          api_key,
         );
         return {
           content: [
@@ -290,13 +310,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case "get_trace_metrics": {
-        const { trace_id, api_key } = args as {
-          trace_id: string;
-          api_key: string;
-        };
+        const { trace_id } = args as { trace_id: string };
         const result = await makeAuthenticatedRequest(
           `/public/v1/traces/${trace_id}/metrics`,
-          api_key,
         );
         return {
           content: [
@@ -309,73 +325,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case "get_span_metrics": {
-        const { span_id, api_key } = args as {
-          span_id: string;
-          api_key: string;
-        };
+        const { span_id } = args as { span_id: string };
         const result = await makeAuthenticatedRequest(
           `/public/v1/spans/${span_id}/metrics`,
-          api_key,
         );
         return {
           content: [
             {
               type: "text",
               text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-      }
-
-      case "get_complete_trace": {
-        const { trace_id, api_key } = args as {
-          trace_id: string;
-          api_key: string;
-        };
-
-        // Get the main trace information
-        const trace = await makeAuthenticatedRequest(
-          `/public/v1/traces/${trace_id}`,
-          api_key,
-        );
-
-        // Get trace metrics
-        const traceMetrics = await makeAuthenticatedRequest(
-          `/public/v1/traces/${trace_id}/metrics`,
-          api_key,
-        );
-        trace.metrics = traceMetrics;
-
-        // Get detailed information and metrics for each span
-        if (trace.spans && Array.isArray(trace.spans)) {
-          for (const spanDict of trace.spans) {
-            if (spanDict.span_id) {
-              try {
-                const spanInfo = await makeAuthenticatedRequest(
-                  `/public/v1/spans/${spanDict.span_id}`,
-                  api_key,
-                );
-                const spanMetrics = await makeAuthenticatedRequest(
-                  `/public/v1/spans/${spanDict.span_id}/metrics`,
-                  api_key,
-                );
-
-                spanDict.information = spanInfo;
-                spanDict.metrics = spanMetrics;
-              } catch (error) {
-                // Continue processing other spans if one fails
-                spanDict.error =
-                  error instanceof Error ? error.message : String(error);
-              }
-            }
-          }
-        }
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(trace, null, 2),
             },
           ],
         };
