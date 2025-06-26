@@ -17,7 +17,7 @@ Add the following to your MCP configuration file:
             "command": "npx",
             "args": ["agentops-mcp"],
             "env": {
-              "AGENTOPS_API_KEY": "PROJECT_KEY_OPTIONAL"
+              "AGENTOPS_API_KEY": ""
             }
         }
     }
