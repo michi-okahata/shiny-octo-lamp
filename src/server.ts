@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+// Ensure we can find node even with version managers
+if (!process.env["NODE_PATH"]) {
+  process.env["NODE_PATH"] = __dirname + "/node_modules";
+}
+
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
@@ -9,12 +14,8 @@ import {
   McpError,
 } from "@modelcontextprotocol/sdk/types.js";
 import axios, { AxiosResponse } from "axios";
-import * as dotenv from "dotenv";
 
-// Load environment variables
-dotenv.config();
-
-const HOST = process.env["HOST"] || "https://api.agentops.ai";
+const HOST = "https://api.agentops.ai";
 
 interface AuthHeaders {
   [key: string]: string;
@@ -117,7 +118,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "auth",
         description:
-          "Authorize using a AgentOps project API key and store the resulting JWT token.\n    Look for the AgentOps project API key in the primary file or the .env file.\n\n    Args:\n        api_key: AgentOps project API key.\n\n    Returns:\n        dict: Error message or success.\n    ",
+          "Authorize using a AgentOps project API key and return JWT token.\n\n    Args:\n        api_key: AgentOps project API key.\n\n    Returns:\n        dict: Authorization headers or error message.\n    ",
         inputSchema: {
           type: "object",
           properties: {
@@ -441,9 +442,21 @@ process.on("SIGTERM", () => {
   process.exit(0);
 });
 
+// Handle uncaught exceptions
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught exception:", error);
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled rejection at:", promise, "reason:", reason);
+  process.exit(1);
+});
+
 if (require.main === module) {
   main().catch((error) => {
     console.error("Server error:", error);
+    console.error("Stack trace:", error.stack);
     process.exit(1);
   });
 }

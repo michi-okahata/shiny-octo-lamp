@@ -38,10 +38,9 @@ npm run dev
 
 ## Usage
 
-### Environment Variables
+### Configuration
 
-- `AGENTOPS_API_KEY`: Your AgentOps API key (optional, can be passed as parameter)
-- `HOST`: The AgentOps API host (optional, defaults to https://api.agentops.ai)
+The server connects to the AgentOps API at `https://api.agentops.ai`. All tools require your AgentOps API key to be passed as a parameter.
 
 ### MCP Client Configuration
 
@@ -54,10 +53,7 @@ Add to your MCP configuration file:
     "mcpServers": {
         "agentops": {
             "command": "npx",
-            "args": ["agentops-mcp"],
-            "env": {
-                "AGENTOPS_API_KEY": "your-api-key-here"
-            }
+            "args": ["agentops-mcp"]
         }
     }
 }
@@ -70,10 +66,7 @@ Add to your MCP configuration file:
     "mcpServers": {
         "agentops": {
             "command": "node",
-            "args": ["/path/to/mcp/dist/server.js"],
-            "env": {
-                "AGENTOPS_API_KEY": "your-api-key-here"
-            }
+            "args": ["/path/to/mcp/dist/server.js"]
         }
     }
 }
@@ -82,10 +75,13 @@ Add to your MCP configuration file:
 ## Available Tools
 
 ### `auth`
-Authorize using an AgentOps project API key.
+Authorize using an AgentOps project API key and return JWT token.
 
 **Parameters:**
 - `api_key` (string): Your AgentOps project API key
+
+**Returns:**
+- Authorization headers object or error message
 
 ### `get_project`
 Get project information and configuration.
@@ -151,7 +147,7 @@ mcp/
 ├── dist/                  # Compiled JavaScript output
 ├── package.json          # NPM configuration
 ├── tsconfig.json         # TypeScript configuration
-└── README.ts.md          # This file
+└── README.md             # This file
 ```
 
 ## Error Handling
@@ -167,7 +163,7 @@ All tools return JSON responses. On error, you'll receive:
 ## Requirements
 
 - Node.js >= 18.0.0
-- AgentOps API key
+- AgentOps API key (passed as parameter to tools)
 
 ## License
 

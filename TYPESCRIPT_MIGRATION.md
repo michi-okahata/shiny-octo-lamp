@@ -37,7 +37,6 @@ mcp/
 **Runtime Dependencies:**
 - `@modelcontextprotocol/sdk`: ^0.4.0 - Official MCP SDK for TypeScript
 - `axios`: ^1.6.0 - HTTP client (replaces Python's `requests`)
-- `dotenv`: ^16.3.1 - Environment variable loading
 
 **Development Dependencies:**
 - `@types/node`: ^20.0.0 - Node.js type definitions
@@ -64,11 +63,9 @@ All original Python tools have been preserved with identical functionality:
 4. **NPX Compatibility**: Can be installed and run via `npx agentops-mcp`
 5. **Development Experience**: Hot reloading with `npm run dev`
 
-### Environment Variables
+### Configuration
 
-Same as Python version:
-- `AGENTOPS_API_KEY`: Your AgentOps API key (can be passed as parameter to tools)
-- `HOST`: AgentOps API host (optional, defaults to https://api.agentops.ai)
+The server connects directly to `https://api.agentops.ai`. All tools require the AgentOps API key to be passed as a parameter - no environment variables are needed.
 
 ### Usage Examples
 
@@ -90,10 +87,7 @@ npm start
     "mcpServers": {
         "agentops": {
             "command": "npx",
-            "args": ["agentops-mcp"],
-            "env": {
-                "AGENTOPS_API_KEY": "your-api-key-here"
-            }
+            "args": ["agentops-mcp"]
         }
     }
 }
@@ -116,6 +110,7 @@ The server was tested and confirmed to:
 4. **Performance**: V8 JavaScript engine performance characteristics
 5. **Development Experience**: Better IDE support and debugging tools
 6. **Maintainability**: Stricter type checking and modern language features
+7. **Simplified Configuration**: No environment variables required - API keys passed as parameters
 
 ## Backward Compatibility
 
@@ -123,9 +118,9 @@ The TypeScript version maintains 100% API compatibility with the Python version:
 - Same tool names and parameters
 - Same response formats
 - Same error handling patterns
-- Same environment variable usage
+- API keys passed as tool parameters (no environment variables needed)
 
-Existing MCP client configurations will work with minimal changes (just update the command from Python to npx).
+Existing MCP client configurations will work with minimal changes (just update the command from Python to npx and remove environment variable configuration).
 
 ## Next Steps
 

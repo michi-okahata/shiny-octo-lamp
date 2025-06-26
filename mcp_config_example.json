@@ -2,10 +2,7 @@
   "mcpServers": {
     "agentops": {
       "command": "npx",
-      "args": ["agentops-mcp"],
-      "env": {
-        "AGENTOPS_API_KEY": "your-agentops-api-key-here"
-      }
+      "args": ["agentops-mcp"]
     }
   }
 }

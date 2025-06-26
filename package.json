@@ -1,10 +1,10 @@
 {
   "name": "agentops-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MCP server access to the AgentOps Public API.",
   "main": "dist/server.js",
   "bin": {
-    "agentops-mcp": "bin/agentops-mcp"
+    "agentops-mcp": "dist/server.js"
   },
   "scripts": {
     "build": "tsc",
@@ -23,8 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^0.4.0",
-    "axios": "^1.6.0",
-    "dotenv": "^16.3.1"
+    "axios": "^1.6.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -36,7 +35,6 @@
   },
   "files": [
     "dist/**/*",
-    "bin/**/*",
     "README.md"
   ]
 }
