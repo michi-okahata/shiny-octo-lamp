@@ -284,7 +284,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
 
         // Try to get API key from environment first, then from parameter
-        const actualApiKey = process.env["AGENTOPS_API_KEY"] || api_key;
+        const actualApiKey = api_key || process.env["AGENTOPS_API_KEY"];
         if (!actualApiKey) {
           throw new Error(
             "No API key available. Please either set the AGENTOPS_API_KEY environment variable or provide an api_key parameter.",
@@ -300,8 +300,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         serverState.setJwtToken(authResult);
 
         const source = process.env["AGENTOPS_API_KEY"]
-          ? "environment variable"
-          : "provided parameter";
+          ? "provided parameters"
+          : "environment variable";
         return {
           content: [
             {
