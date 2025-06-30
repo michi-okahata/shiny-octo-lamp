@@ -1,10 +1,5 @@
 #!/usr/bin/env node
 
-// Ensure we can find node even with version managers
-if (!process.env["NODE_PATH"]) {
-  process.env["NODE_PATH"] = __dirname + "/node_modules";
-}
-
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
@@ -190,7 +185,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "get_trace",
-        description: "Get basic trace information by trace_id.",
+        description: "Get trace information and metrics by trace_id.",
         inputSchema: {
           type: "object",
           properties: {
@@ -204,7 +199,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: "get_span",
-        description: "Get span information by span_id.",
+        description: "Get span information and metrics by span_id.",
         inputSchema: {
           type: "object",
           properties: {
@@ -217,8 +212,9 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
       },
       {
-        name: "get_trace_metrics",
-        description: "Get metrics for a specific trace by trace_id.",
+        name: "get_complete_trace",
+        description:
+          "Reserved for explicit requests for COMPLETE or ALL data. Get complete trace information and metrics by trace_id.",
         inputSchema: {
           type: "object",
           properties: {
@@ -228,20 +224,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
           },
           required: ["trace_id"],
-        },
-      },
-      {
-        name: "get_span_metrics",
-        description: "Get performance metrics for a specific span by span_id.",
-        inputSchema: {
-          type: "object",
-          properties: {
-            span_id: {
-              type: "string",
-              description: "Span ID",
-            },
-          },
-          required: ["span_id"],
         },
       },
     ],
@@ -329,9 +311,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case "get_trace": {
         const { trace_id } = args as { trace_id: string };
-        const result = await makeAuthenticatedRequest(
-          `/public/v1/traces/${trace_id}`,
-        );
+        const [traceInfo, traceMetrics] = await Promise.all([
+          makeAuthenticatedRequest(`/public/v1/traces/${trace_id}`),
+          makeAuthenticatedRequest(`/public/v1/traces/${trace_id}/metrics`),
+        ]);
+        const result = { ...traceInfo, metrics: traceMetrics };
         return {
           content: [
             {
@@ -344,9 +328,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case "get_span": {
         const { span_id } = args as { span_id: string };
-        const result = await makeAuthenticatedRequest(
-          `/public/v1/spans/${span_id}`,
-        );
+        const [spanInfo, spanMetrics] = await Promise.all([
+          makeAuthenticatedRequest(`/public/v1/spans/${span_id}`),
+          makeAuthenticatedRequest(`/public/v1/spans/${span_id}/metrics`),
+        ]);
+        const result = { ...spanInfo, metrics: spanMetrics };
         return {
           content: [
             {
@@ -357,31 +343,35 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
-      case "get_trace_metrics": {
+      case "get_complete_trace": {
         const { trace_id } = args as { trace_id: string };
-        const result = await makeAuthenticatedRequest(
-          `/public/v1/traces/${trace_id}/metrics`,
-        );
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-      }
+        const [traceInfo, traceMetrics] = await Promise.all([
+          makeAuthenticatedRequest(`/public/v1/traces/${trace_id}`),
+          makeAuthenticatedRequest(`/public/v1/traces/${trace_id}/metrics`),
+        ]);
+        const parentTrace = { ...traceInfo, metrics: traceMetrics };
 
-      case "get_span_metrics": {
-        const { span_id } = args as { span_id: string };
-        const result = await makeAuthenticatedRequest(
-          `/public/v1/spans/${span_id}/metrics`,
-        );
+        if (parentTrace.spans && Array.isArray(parentTrace.spans)) {
+          for (let i = 0; i < parentTrace.spans.length; i++) {
+            if (parentTrace.spans[i].span_id) {
+              const span_id = parentTrace.spans[i].span_id;
+              const [childSpanInfo, childSpanMetrics] = await Promise.all([
+                makeAuthenticatedRequest(`/public/v1/spans/${span_id}`),
+                makeAuthenticatedRequest(`/public/v1/spans/${span_id}/metrics`),
+              ]);
+              parentTrace.spans[i] = {
+                ...childSpanInfo,
+                metrics: childSpanMetrics,
+              };
+            }
+          }
+        }
+
         return {
           content: [
             {
               type: "text",
-              text: JSON.stringify(result, null, 2),
+              text: JSON.stringify(parentTrace, null, 2),
             },
           ],
         };
