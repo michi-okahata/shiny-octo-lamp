@@ -10,7 +10,8 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import axios, { AxiosResponse } from "axios";
 
-const HOST = "https://api.agentops.ai";
+// const HOST = "https://api.agentops.ai";
+const HOST = "http://0.0.0.0:8000";
 
 interface AuthHeaders {
   [key: string]: string;
@@ -276,9 +277,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         // Store the JWT token in server state
         serverState.setJwtToken(authResult);
 
-        const source = process.env["AGENTOPS_API_KEY"]
-          ? "provided parameters"
-          : "environment variable";
+        const result = await makeAuthenticatedRequest(`/public/v1/project`);
+        const name = result.name;
         return {
           content: [
             {
@@ -287,7 +287,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                 {
                   success: true,
                   message: "Authentication successful",
-                  source: `API key loaded from ${source}`,
+                  project: name,
                 },
                 null,
                 2,
@@ -346,8 +346,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "get_complete_trace": {
         const { trace_id } = args as { trace_id: string };
         const [traceInfo, traceMetrics] = await Promise.all([
-          makeAuthenticatedRequest(`/public/v1/trace/${trace_id}`),
-          makeAuthenticatedRequest(`/public/v1/trace/${trace_id}/metrics`),
+          makeAuthenticatedRequest(`/public/v1/traces/${trace_id}`),
+          makeAuthenticatedRequest(`/public/v1/traces/${trace_id}/metrics`),
         ]);
         const parentTrace = { ...traceInfo, metrics: traceMetrics };
 
