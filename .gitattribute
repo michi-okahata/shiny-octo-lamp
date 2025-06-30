@@ -1,0 +1,4 @@
+# TypeScript files
+*.ts linguist-language=TypeScript
+*.tsx linguist-language=TypeScript
+*.d.ts linguist-language=TypeScript
