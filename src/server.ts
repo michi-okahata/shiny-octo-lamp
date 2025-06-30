@@ -162,7 +162,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "auth",
         description:
-          "Authorize using the AGENTOPS_API_KEY. If an API key is not provided, search for it in the directory and the .env file.",
+          "Authorize using the AGENTOPS_API_KEY. If the API key is not provided and cannot be found in the directory, ask the user.",
         inputSchema: {
           type: "object",
           properties: {
@@ -346,8 +346,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "get_complete_trace": {
         const { trace_id } = args as { trace_id: string };
         const [traceInfo, traceMetrics] = await Promise.all([
-          makeAuthenticatedRequest(`/public/v1/traces/${trace_id}`),
-          makeAuthenticatedRequest(`/public/v1/traces/${trace_id}/metrics`),
+          makeAuthenticatedRequest(`/public/v1/trace/${trace_id}`),
+          makeAuthenticatedRequest(`/public/v1/trace/${trace_id}/metrics`),
         ]);
         const parentTrace = { ...traceInfo, metrics: traceMetrics };
 
