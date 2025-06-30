@@ -1,6 +1,6 @@
 {
   "name": "agentops-mcp",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "MCP server access to the AgentOps Public API.",
   "main": "dist/server.js",
   "types": "dist/server.d.ts",
