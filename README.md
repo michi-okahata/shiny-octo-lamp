@@ -26,6 +26,10 @@ Add the following to your MCP configuration file:
 
 ## Installation
 
+### Installing via Cursor Deeplink
+
+[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=agentops&config=eyJjb21tYW5kIjoibnB4IGFnZW50b3BzLW1jcCIsImVudiI6eyJBR0VOVE9QU19BUElfS0VZIjoiIn19)
+
 ### Installing via Smithery
 
 To install agentops-mcp for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@AgentOps-AI/agentops-mcp):
