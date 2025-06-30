@@ -10,8 +10,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import axios, { AxiosResponse } from "axios";
 
-// const HOST = "https://api.agentops.ai";
-const HOST = "http://0.0.0.0:8000";
+const HOST = "https://api.agentops.ai";
 
 interface AuthHeaders {
   [key: string]: string;
