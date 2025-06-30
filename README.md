@@ -77,18 +77,6 @@ Get span information by ID.
 **Parameters:**
 - `span_id` (string): The span ID to retrieve
 
-### `get_trace_metrics`
-Get performance metrics for a specific trace.
-
-**Parameters:**
-- `trace_id` (string): The trace ID
-
-### `get_span_metrics`
-Get performance metrics for a specific span.
-
-**Parameters:**
-- `span_id` (string): The span ID
-
 ### `get_complete_trace`
 Get comprehensive trace information including all spans and their metrics.
 
