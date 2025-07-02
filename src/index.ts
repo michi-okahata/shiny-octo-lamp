@@ -33,7 +33,10 @@ class ServerState {
     if (!this.jwtToken) {
       return null;
     }
-    return { Authorization: `Bearer ${this.jwtToken}` };
+    return {
+      Authorization: `Bearer ${this.jwtToken}`,
+      "User-Agent": "agentops-mcp/0.3.5",
+    };
   }
 
   isAuthenticated(): boolean {
@@ -162,7 +165,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "auth",
         description:
-          "Authorize using the AGENTOPS_API_KEY. If the API key is not provided and cannot be found in the directory, ask the user.",
+          "Authorize using the AGENTOPS_API_KEY. If the API key is not provided and cannot be found in the directory, ask the user for the API key.",
         inputSchema: {
           type: "object",
           properties: {
@@ -173,14 +176,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
           },
           required: [],
-        },
-      },
-      {
-        name: "get_project",
-        description: "Get information about the current AgentOps project.",
-        inputSchema: {
-          type: "object",
-          properties: {},
         },
       },
       {
@@ -264,7 +259,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const actualApiKey = api_key || process.env["AGENTOPS_API_KEY"];
         if (!actualApiKey) {
           throw new Error(
-            "No API key available. Please either set the AGENTOPS_API_KEY environment variable or provide an api_key parameter.",
+            "No project API key available. Please provide a project API key.",
           );
         }
 
@@ -291,18 +286,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                 null,
                 2,
               ),
-            },
-          ],
-        };
-      }
-
-      case "get_project": {
-        const result = await makeAuthenticatedRequest("/public/v1/project");
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
             },
           ],
         };
