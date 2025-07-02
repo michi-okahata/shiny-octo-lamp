@@ -1,6 +1,6 @@
 {
   "name": "agentops-mcp",
-  "version": "0.3.2",
+  "version": "0.3.5",
   "description": "MCP index access to the AgentOps Public API.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
