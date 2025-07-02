@@ -63,12 +63,6 @@ Authorize using an AgentOps project API key and return JWT token.
 **Parameters:**
 - `api_key` (string): Your AgentOps project API key
 
-**Returns:**
-- Authorization headers object or error message
-
-### `get_project`
-Get project information and configuration.
-
 ### `get_trace`
 Retrieve trace information by ID.
 
