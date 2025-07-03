@@ -7,7 +7,7 @@ startCommand:
     |-
     (config) => ({
       command: 'node',
-      args: ['dist/server.js'],
+      args: ['dist/index.js'],
       env: config.apiKey ? { AGENTOPS_API_KEY: config.apiKey } : {}
     })
   configSchema:
