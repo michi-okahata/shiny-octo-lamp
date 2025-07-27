@@ -4,6 +4,10 @@
 
 The AgentOps MCP server provides access to observability and tracing data for debugging complex AI agent runs. This adds crucial context about where the AI agent succeeds or fails.
 
+<a href="https://glama.ai/mcp/servers/@AgentOps-AI/agentops-mcp">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@AgentOps-AI/agentops-mcp/badge" alt="AgentOps MCP server" />
+</a>
+
 ## Usage
 
 ### MCP Client Configuration
@@ -28,7 +32,7 @@ Add the following to your MCP configuration file:
 
 ### Installing via Cursor Deeplink
 
-[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=agentops&config=eyJjb21tYW5kIjoibnB4IGFnZW50b3BzLW1jcCIsImVudiI6eyJBR0VOVE9QU19BUElfS0VZIjoiIn19)
+[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=agentops&config=eyJjb21tYW5kIjoibnB4IGFnZW50b3BzLW1jcCIsImVudiI6eyJBR0VENTE9QU19BUElfS0VZIjoiIn19)
 
 ### Installing via Smithery
 
